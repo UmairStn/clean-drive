@@ -47,4 +47,32 @@ public class StorageOptimizer {
         double mbSavings = totalSavings / (1024.0 * 1024.0);
         System.out.printf("\nPotential Reclaimable Disk Space: %.2f MB\n", mbSavings);
     }
+
+    public static int autoClean(List<List<FileRecord>> duplicateGroups) {
+        int deletedCount = 0;
+        if (duplicateGroups.isEmpty()) {
+            System.out.println("No duplicates found to clean.");
+            return deletedCount;
+        }
+
+        for (int i = 0; i < duplicateGroups.size(); i++) {
+            List<FileRecord> group = duplicateGroups.get(i);
+            
+            FileRecord keepFile = group.get(0);
+            for (FileRecord f : group) {
+                if (f.getLastModified().isBefore(keepFile.getLastModified())) {
+                    keepFile = f;
+                }
+            }
+
+            for (FileRecord f : group) {
+                if (!f.getFilePath().equals(keepFile.getFilePath())) {
+                    if (deleteFile(f.getFilePath())) {
+                        deletedCount++;
+                    }
+                }
+            }
+        }
+        return deletedCount;
+    }
 }

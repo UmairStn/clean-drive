@@ -28,7 +28,7 @@ public class ConsoleMenu {
             System.out.println("3. View Top Largest Files (Max Heap)");
             System.out.println("4. View Folder Graph Hierarchy");
             System.out.println("5. Safe Cleanup Recommendations");
-            System.out.println("6. Delete File Manually");
+            System.out.println("6. Delete Options (Manual / Batch / Auto-Clean)");
             System.out.println("7. Exit");
             System.out.print("Select an option (1-7): ");
 
@@ -116,21 +116,89 @@ public class ConsoleMenu {
     }
 
     private void handleDelete() {
-        System.out.print("Enter full path of file to delete: ");
-        String filePath = scanner.nextLine();
+        System.out.println("\n--- Delete Options ---");
+        System.out.println("1. Delete a specific file by path");
+        System.out.println("2. Delete a duplicate by index");
+        System.out.println("3. Auto-Clean all recommended dupes");
+        System.out.println("4. Back");
+        System.out.print("Select an option (1-4): ");
+        int choice = getIntInput();
 
-        System.out.print("Are you sure you want to permanently delete this file? (yes/no): ");
-        String confirm = scanner.nextLine();
+        switch (choice) {
+            case 1:
+                System.out.print("Enter full path of file to delete: ");
+                String filePath = scanner.nextLine();
 
-        if (confirm.equalsIgnoreCase("yes")) {
-            boolean deleted = StorageOptimizer.deleteFile(filePath);
-            if (deleted) {
-                System.out.println("File deleted successfully!");
-            } else {
-                System.out.println("Failed to delete file. Check path permissions.");
-            }
-        } else {
-            System.out.println("Deletion cancelled.");
+                System.out.print("Are you sure you want to permanently delete this file? (yes/no): ");
+                String confirm = scanner.nextLine();
+
+                if (confirm.equalsIgnoreCase("yes")) {
+                    boolean deleted = StorageOptimizer.deleteFile(filePath);
+                    if (deleted) {
+                        System.out.println("File deleted successfully!");
+                    } else {
+                        System.out.println("Failed to delete file. Check path permissions.");
+                    }
+                } else {
+                    System.out.println("Deletion cancelled.");
+                }
+                break;
+            case 2:
+                List<List<FileRecord>> duplicates = avlTree.getDuplicateGroups();
+                if (duplicates.isEmpty()) {
+                    System.out.println("\nNo duplicate files found. Run a scan first.");
+                    return;
+                }
+                System.out.print("Enter Group Number: ");
+                int groupNum = getIntInput();
+                if (groupNum < 1 || groupNum > duplicates.size()) {
+                    System.out.println("Invalid Group Number.");
+                    return;
+                }
+                List<FileRecord> group = duplicates.get(groupNum - 1);
+                for (int i = 0; i < group.size(); i++) {
+                    System.out.println((i + 1) + ". " + group.get(i).getFilePath());
+                }
+                System.out.print("Enter File Number to delete: ");
+                int fileNum = getIntInput();
+                if (fileNum < 1 || fileNum > group.size()) {
+                    System.out.println("Invalid File Number.");
+                    return;
+                }
+                String fileToDelete = group.get(fileNum - 1).getFilePath();
+                System.out.print("Are you sure you want to permanently delete " + fileToDelete + "? (yes/no): ");
+                String confirm2 = scanner.nextLine();
+                if (confirm2.equalsIgnoreCase("yes")) {
+                    boolean deleted = StorageOptimizer.deleteFile(fileToDelete);
+                    if (deleted) {
+                        System.out.println("File deleted successfully!");
+                    } else {
+                        System.out.println("Failed to delete file. Check path permissions.");
+                    }
+                } else {
+                    System.out.println("Deletion cancelled.");
+                }
+                break;
+            case 3:
+                List<List<FileRecord>> duplicatesForAutoClean = avlTree.getDuplicateGroups();
+                if (duplicatesForAutoClean.isEmpty()) {
+                    System.out.println("\nNo duplicate files found. Run a scan first.");
+                    return;
+                }
+                System.out.println("WARNING: This will permanently delete all duplicate files except the oldest one in each group.");
+                System.out.print("Are you sure you want to proceed? (yes/no): ");
+                String confirm3 = scanner.nextLine();
+                if (confirm3.equalsIgnoreCase("yes")) {
+                    int count = StorageOptimizer.autoClean(duplicatesForAutoClean);
+                    System.out.println("Auto-Clean completed! Successfully deleted " + count + " file(s).");
+                } else {
+                    System.out.println("Auto-Clean cancelled.");
+                }
+                break;
+            case 4:
+                return;
+            default:
+                System.out.println("Invalid option. Please enter a number from 1 to 4.");
         }
     }
 

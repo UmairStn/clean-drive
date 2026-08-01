@@ -27,14 +27,15 @@ public class StorageOptimizer {
             List<FileRecord> group = duplicateGroups.get(i);
             System.out.println("\nDuplicate Group " + (i + 1) + " [Hash: " + group.get(0).getFileHash() + "]:");
 
+            // Smart check: Pick original file over copy files
             FileRecord keepFile = group.get(0);
             for (FileRecord f : group) {
-                if (f.getLastModified().isBefore(keepFile.getLastModified())) {
+                if (isBetterToKeep(f, keepFile)) {
                     keepFile = f;
                 }
             }
 
-            System.out.println("  [RECOMMENDED KEEP] " + keepFile.getFilePath() + " (Oldest creation date)");
+            System.out.println("  [RECOMMENDED KEEP] " + keepFile.getFilePath() + " (Original File)");
 
             for (FileRecord f : group) {
                 if (!f.getFilePath().equals(keepFile.getFilePath())) {
@@ -46,5 +47,25 @@ public class StorageOptimizer {
 
         double mbSavings = totalSavings / (1024.0 * 1024.0);
         System.out.printf("\nPotential Reclaimable Disk Space: %.2f MB\n", mbSavings);
+    }
+
+    private static boolean isBetterToKeep(FileRecord candidate, FileRecord currentBest) {
+        String candName = candidate.getFileName().toLowerCase();
+        String bestName = currentBest.getFileName().toLowerCase();
+
+        boolean candIsCopy = candName.contains("copy") || candName.contains("(1)") || candName.contains("(2)");
+        boolean bestIsCopy = bestName.contains("copy") || bestName.contains("(1)") || bestName.contains("(2)");
+
+        // If current best is a copy and candidate is NOT a copy, prefer candidate
+        if (bestIsCopy && !candIsCopy) {
+            return true;
+        }
+        // If candidate is a copy and current best is NOT, keep current best
+        if (candIsCopy && !bestIsCopy) {
+            return false;
+        }
+
+        // Fallback: Pick older timestamp if both are normal or both are copies
+        return candidate.getLastModified().isBefore(currentBest.getLastModified());
     }
 }

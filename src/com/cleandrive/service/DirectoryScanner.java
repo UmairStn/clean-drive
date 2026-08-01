@@ -12,6 +12,11 @@ import java.time.Instant;
 public class DirectoryScanner {
 
     public DirectoryGraph scanDirectoryDFS(String rootPath, AVLTree avlTree, MaxHeap maxHeap) {
+        File rootDir = new File(rootPath);
+        if (!rootDir.exists() || !rootDir.isDirectory()) {
+            return null;
+        }
+
         DirectoryGraph graph = new DirectoryGraph(rootPath);
         avlTree.clear();
         maxHeap.clear();

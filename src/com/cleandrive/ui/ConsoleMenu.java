@@ -23,7 +23,6 @@ public class ConsoleMenu {
     private Scanner scanner = new Scanner(System.in);
 
     public ConsoleMenu() {
-        // Set native system look and feel for the file picker
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception ignored) {
@@ -36,11 +35,11 @@ public class ConsoleMenu {
         System.out.println("=================================================");
 
         while (true) {
-            // STEP 1: Get directory path using 3 initial options
+            // STEP 1: Get directory path using initial prompt
             if (activePath == null) {
                 boolean proceed = promptForInitialPath();
                 if (!proceed || activePath == null) {
-                    return; // Exit application
+                    return; // Exit application cleanly
                 }
             }
 
@@ -61,6 +60,7 @@ public class ConsoleMenu {
 
             int choice = parseChoice(input);
 
+            // MAIN MENU SWITCH (Returns void inside start())
             switch (choice) {
                 case 1:
                     executeScan(activePath);
@@ -75,23 +75,27 @@ public class ConsoleMenu {
                     handleGraphView();
                     break;
                 case 5:
-                    StorageOptimizer.generateRecommendations(avlTree.getDuplicateGroups());
+                    handleClutterHeatmap();
                     break;
                 case 6:
-                    handleDelete();
+                    StorageOptimizer.generateRecommendations(avlTree.getDuplicateGroups());
                     break;
                 case 7:
-                    clearActivePath();
+                    handleDelete();
                     break;
                 case 8:
+                    clearActivePath();
+                    break;
+                case 9:
                     System.out.println("Exiting CleanDrive+. Goodbye!");
                     return;
                 default:
-                    System.out.println("Invalid option. Enter 1-8 or type 'clear path' / 'exit'.");
+                    System.out.println("Invalid option. Please select an option from 1 to 9.");
             }
         }
     }
 
+    // INITIAL PATH METHOD (Returns boolean)
     private boolean promptForInitialPath() {
         while (activePath == null) {
             System.out.println("\n-------------------------------------------------");
@@ -162,11 +166,12 @@ public class ConsoleMenu {
         System.out.println("2. View Duplicate Files (AVL Tree)");
         System.out.println("3. View Top Largest Files (Max Heap)");
         System.out.println("4. View Folder Graph Hierarchy");
-        System.out.println("5. Safe Cleanup Recommendations");
-        System.out.println("6. Delete File Manually");
-        System.out.println("7. Clear / Change Path");
-        System.out.println("8. Exit");
-        System.out.print("Select an option (1-8): ");
+        System.out.println("5. View Folder Clutter Heatmap (Novel Feature)");
+        System.out.println("6. Safe Cleanup Recommendations");
+        System.out.println("7. Delete File Manually");
+        System.out.println("8. Clear / Change Path");
+        System.out.println("9. Exit");
+        System.out.print("Select an option (1-9): ");
     }
 
     private void executeScan(String path) {
@@ -233,6 +238,14 @@ public class ConsoleMenu {
             return;
         }
         activeGraph.printGraphStructure();
+    }
+
+    private void handleClutterHeatmap() {
+        if (activeGraph == null) {
+            System.out.println("\nPlease run a directory scan first.");
+            return;
+        }
+        activeGraph.printClutterHeatmap(avlTree.getDuplicateGroups());
     }
 
     private void handleDelete() {

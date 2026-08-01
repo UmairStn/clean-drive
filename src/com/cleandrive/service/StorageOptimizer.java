@@ -7,9 +7,16 @@ import java.util.List;
 public class StorageOptimizer {
 
     public static boolean deleteFile(String filePath) {
-        File file = new File(filePath);
-        if (file.exists()) {
-            return file.delete();
+        try {
+            java.nio.file.Path path = java.nio.file.Paths.get(filePath);
+            java.nio.file.Files.delete(path);
+            return true;
+        } catch (java.nio.file.NoSuchFileException e) {
+            System.out.println("Error: File does not exist at specified path.");
+        } catch (java.nio.file.AccessDeniedException e) {
+            System.out.println("Error: Access denied. Run IDE as Administrator or check permissions.");
+        } catch (java.io.IOException e) {
+            System.out.println("Error: File is locked by another process (close open PDF viewers).");
         }
         return false;
     }

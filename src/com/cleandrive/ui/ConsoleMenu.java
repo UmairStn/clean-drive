@@ -249,22 +249,78 @@ public class ConsoleMenu {
     }
 
     private void handleDelete() {
-        System.out.print("Enter full path of file to delete: ");
-        String filePath = scanner.nextLine().trim();
+        System.out.println("\n-------------------------------------------------");
+        System.out.println("Select File Deletion Method:");
+        System.out.println("1. Select File using File Picker");
+        System.out.println("2. Enter Full File Path Manually");
+        System.out.println("3. Cancel");
+        System.out.print("Select an option (1-3): ");
 
+        String choiceStr = scanner.nextLine().trim();
+        int choice = parseChoice(choiceStr);
+
+        String filePath = null;
+
+        switch (choice) {
+            case 1:
+                filePath = openSingleFilePicker();
+                break;
+            case 2:
+                System.out.print("Enter full path of file to delete: ");
+                filePath = scanner.nextLine().trim();
+                break;
+            case 3:
+                System.out.println("Deletion cancelled.");
+                return;
+            default:
+                System.out.println("Invalid selection. Deletion cancelled.");
+                return;
+        }
+
+        if (filePath == null || filePath.isEmpty()) {
+            System.out.println("No file selected.");
+            return;
+        }
+
+        File targetFile = new File(filePath);
+        if (!targetFile.exists() || !targetFile.isFile()) {
+            System.out.println("Error: Specified path is invalid or is not a file.");
+            return;
+        }
+
+        System.out.println("\nSelected File: " + targetFile.getAbsolutePath());
         System.out.print("Are you sure you want to permanently delete this file? (yes/no): ");
         String confirm = scanner.nextLine().trim();
 
         if (confirm.equalsIgnoreCase("yes")) {
-            boolean deleted = StorageOptimizer.deleteFile(filePath);
+            boolean deleted = StorageOptimizer.deleteFile(targetFile.getAbsolutePath());
             if (deleted) {
                 System.out.println("File deleted successfully!");
-            } else {
-                System.out.println("Failed to delete file. Check path permissions.");
             }
         } else {
             System.out.println("Deletion cancelled.");
         }
+    }
+
+    private String openSingleFilePicker() {
+        System.out.println("Opening Windows File Picker dialog...");
+
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Select File to Delete - CleanDrive+");
+        chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        chooser.setAcceptAllFileFilterUsed(true);
+
+        // Pre-set directory to active path if available
+        if (activePath != null) {
+            chooser.setCurrentDirectory(new File(activePath));
+        }
+
+        int result = chooser.showOpenDialog(null);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            return chooser.getSelectedFile().getAbsolutePath();
+        }
+        return null;
     }
 
     private int parseChoice(String input) {

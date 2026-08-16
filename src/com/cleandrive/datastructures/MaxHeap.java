@@ -77,4 +77,36 @@ public class MaxHeap {
     public void clear() {
         heap.clear();
     }
+
+/**
+     * Retrieves the largest FileRecord without removing it from the heap.
+     * Time Complexity: $O(1)$
+     */
+    public FileRecord peekMax() {
+        if (heap.isEmpty()) return null;
+        return heap.get(0);
+    }
+
+    /**
+     * Safely retrieves the top N largest files for UI display.
+     * Uses cloneHeap() to ensure the original MaxHeap remains fully intact.
+     * Time Complexity: $O(k \log n)$ where k is the limit
+     */
+    public List<FileRecord> getTopNFiles(int n) {
+        List<FileRecord> topFiles = new ArrayList<>();
+        
+        // 1. Create a safe, temporary copy of the heap
+        MaxHeap tempHeap = this.cloneHeap();
+        
+        // 2. Prevent IndexOutOfBounds if they ask for 10 files but only 3 exist
+        int limit = Math.min(n, this.heap.size());
+        
+        // 3. Extract the top files from the temporary heap
+        for (int i = 0; i < limit; i++) {
+            topFiles.add(tempHeap.extractMax());
+        }
+        
+        return topFiles;
+    }
+
 }

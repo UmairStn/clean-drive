@@ -15,6 +15,13 @@ import java.util.Scanner;
 
 public class ConsoleMenu {
 
+    // ANSI Escape Codes for UI Styling
+    public static final String RESET = "\u001B[0m";
+    public static final String CYAN = "\u001B[36m";   // Primary neon accent
+    public static final String GREEN = "\u001B[32m";  // Success state
+    public static final String RED = "\u001B[31m";    // Warning/Exit state
+    public static final String BOLD = "\u001B[1m";    // Emphasized text
+
     private AVLTree avlTree = new AVLTree();
     private MaxHeap maxHeap = new MaxHeap();
     private DirectoryScanner scannerService = new DirectoryScanner();
@@ -30,9 +37,9 @@ public class ConsoleMenu {
     }
 
     public void start() {
-        System.out.println("=================================================");
-        System.out.println("             CleanDrive+ Storage Optimizer       ");
-        System.out.println("=================================================");
+        System.out.println(CYAN + BOLD + "\n=================================================" + RESET);
+        System.out.println(CYAN + BOLD + "           CleanDrive+ Storage Optimizer         " + RESET);
+        System.out.println(CYAN + BOLD + "=================================================" + RESET);
 
         while (true) {
             // STEP 1: Get directory path using initial prompt
@@ -49,7 +56,7 @@ public class ConsoleMenu {
             String input = scanner.nextLine().trim();
 
             if (input.equalsIgnoreCase("exit")) {
-                System.out.println("Exiting CleanDrive+. Goodbye!");
+                System.out.println(RED + BOLD + "Exiting CleanDrive+. System offline." + RESET);
                 return;
             }
 
@@ -60,7 +67,7 @@ public class ConsoleMenu {
 
             int choice = parseChoice(input);
 
-            // MAIN MENU SWITCH (Returns void inside start())
+            // MAIN MENU SWITCH
             switch (choice) {
                 case 1:
                     executeScan(activePath);
@@ -87,23 +94,23 @@ public class ConsoleMenu {
                     clearActivePath();
                     break;
                 case 9:
-                    System.out.println("Exiting CleanDrive+. Goodbye!");
+                    System.out.println(RED + BOLD + "Exiting CleanDrive+. System offline." + RESET);
                     return;
                 default:
-                    System.out.println("Invalid option. Please select an option from 1 to 9.");
+                    System.out.println(RED + " [!] Invalid option. Please select an option from 1 to 9." + RESET);
             }
         }
     }
 
-    // INITIAL PATH METHOD (Returns boolean)
+    // INITIAL PATH METHOD
     private boolean promptForInitialPath() {
         while (activePath == null) {
-            System.out.println("\n-------------------------------------------------");
-            System.out.println("Select Path Input Method:");
-            System.out.println("1. Open File Picker");
-            System.out.println("2. Enter Direct Path");
-            System.out.println("3. Exit");
-            System.out.print("Select an option (1-3): ");
+            System.out.println(CYAN + "\n-------------------------------------------------" + RESET);
+            System.out.println(BOLD + "Select Path Input Method:" + RESET);
+            System.out.println(BOLD + "  [1]" + RESET + " Open File Picker");
+            System.out.println(BOLD + "  [2]" + RESET + " Enter Direct Path");
+            System.out.println(BOLD + "  [3]" + RESET + RED + " Exit" + RESET);
+            System.out.print(BOLD + "  > Select an option (1-3): " + RESET);
 
             String choiceStr = scanner.nextLine().trim();
             int choice = parseChoice(choiceStr);
@@ -116,17 +123,17 @@ public class ConsoleMenu {
                     enterPathManually();
                     break;
                 case 3:
-                    System.out.println("Exiting CleanDrive+. Goodbye!");
+                    System.out.println(RED + BOLD + "Exiting CleanDrive+. System offline." + RESET);
                     return false;
                 default:
-                    System.out.println("Invalid selection. Please choose 1, 2, or 3.");
+                    System.out.println(RED + " [!] Invalid selection. Please choose 1, 2, or 3." + RESET);
             }
         }
         return true;
     }
 
     private void openFilePicker() {
-        System.out.println("Opening Windows File Picker dialog...");
+        System.out.println(CYAN + "Opening Windows File Picker dialog..." + RESET);
 
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Select Folder to Scan - CleanDrive+");
@@ -138,10 +145,10 @@ public class ConsoleMenu {
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedFolder = chooser.getSelectedFile();
             activePath = selectedFolder.getAbsolutePath();
-            System.out.println("Selected Directory: " + activePath);
+            System.out.println(GREEN + "Selected Directory: " + activePath + RESET);
             executeScan(activePath);
         } else {
-            System.out.println("No folder selected from File Picker.");
+            System.out.println(RED + "No folder selected from File Picker." + RESET);
         }
     }
 
@@ -154,38 +161,41 @@ public class ConsoleMenu {
             activePath = dir.getAbsolutePath();
             executeScan(activePath);
         } else {
-            System.out.println("Error: Invalid directory path! Path does not exist or is not a folder.");
+            System.out.println(RED + BOLD + " [!] Error: Invalid directory path! Path does not exist or is not a folder." + RESET);
         }
     }
 
     private void displayMenu() {
-        System.out.println("\n=================================================");
-        System.out.println(" ACTIVE PATH: " + activePath);
-        System.out.println("=================================================");
-        System.out.println("1. Rescan Current Directory");
-        System.out.println("2. View Duplicate Files (AVL Tree)");
-        System.out.println("3. View Top Largest Files (Max Heap)");
-        System.out.println("4. View Folder Graph Hierarchy");
-        System.out.println("5. View Folder Clutter Heatmap (Novel Feature)");
-        System.out.println("6. Safe Cleanup Recommendations");
-        System.out.println("7. Delete File Manually");
-        System.out.println("8. Clear / Change Path");
-        System.out.println("9. Exit");
-        System.out.print("Select an option (1-9): ");
+        System.out.println(CYAN + BOLD + "\n=================================================" + RESET);
+        System.out.println(CYAN + BOLD + "   [ C L E A N D R I V E + ]   System Active" + RESET);
+        System.out.println(CYAN + BOLD + "=================================================" + RESET);
+        System.out.println(GREEN + " ACTIVE PATH: " + activePath + RESET);
+        System.out.println(CYAN + "-------------------------------------------------" + RESET);
+        System.out.println(BOLD + "  [1]" + RESET + " Rescan Current Directory");
+        System.out.println(BOLD + "  [2]" + RESET + " View Duplicate Files (AVL Tree)");
+        System.out.println(BOLD + "  [3]" + RESET + " View Top Largest Files (Max Heap)");
+        System.out.println(BOLD + "  [4]" + RESET + " View Folder Graph Hierarchy");
+        System.out.println(BOLD + "  [5]" + RESET + " View Folder Clutter Heatmap");
+        System.out.println(BOLD + "  [6]" + RESET + " Safe Cleanup Recommendations");
+        System.out.println(BOLD + "  [7]" + RESET + " Delete File Manually");
+        System.out.println(BOLD + "  [8]" + RESET + " Clear / Change Path");
+        System.out.println(BOLD + "  [9]" + RESET + RED + " Exit Application" + RESET);
+        System.out.println(CYAN + "-------------------------------------------------" + RESET);
+        System.out.print(BOLD + "  > SELECT AN OPTION (1-9): " + RESET);
     }
 
     private void executeScan(String path) {
-        System.out.println("\nScanning directory and processing data structures...");
+        System.out.println(CYAN + "\nScanning directory and processing data structures..." + RESET);
         DirectoryGraph resultGraph = scannerService.scanDirectoryDFS(path, avlTree, maxHeap);
 
         if (resultGraph == null) {
-            System.out.println("Error: Failed to scan directory path.");
+            System.out.println(RED + BOLD + " [!] Error: Failed to scan directory path." + RESET);
             activePath = null;
             return;
         }
 
         activeGraph = resultGraph;
-        System.out.println("Scanning completed in path (" + path + ")");
+        System.out.println(GREEN + " [✓] Scanning completed in path (" + path + ")" + RESET);
     }
 
     private void clearActivePath() {
@@ -193,19 +203,19 @@ public class ConsoleMenu {
         activeGraph = null;
         avlTree.clear();
         maxHeap.clear();
-        System.out.println("\nActive path cleared successfully!");
+        System.out.println(GREEN + "\n [✓] Active path cleared successfully!" + RESET);
     }
 
     private void handleDuplicates() {
         List<List<FileRecord>> duplicates = avlTree.getDuplicateGroups();
         if (duplicates.isEmpty()) {
-            System.out.println("\nNo duplicate files found in current path.");
+            System.out.println(GREEN + "\n [✓] No duplicate files found in current path." + RESET);
             return;
         }
 
-        System.out.println("\n--- Duplicate File Groups Found (AVL Tree Indexing) ---");
+        System.out.println(CYAN + BOLD + "\n--- Duplicate File Groups Found (AVL Tree Indexing) ---" + RESET);
         for (int i = 0; i < duplicates.size(); i++) {
-            System.out.println("\nGroup " + (i + 1) + ":");
+            System.out.println(BOLD + "\nGroup " + (i + 1) + ":" + RESET);
             for (FileRecord file : duplicates.get(i)) {
                 System.out.println("  -> " + file.getFilePath());
             }
@@ -214,15 +224,15 @@ public class ConsoleMenu {
 
     private void handleLargestFiles() {
         if (maxHeap.isEmpty()) {
-            System.out.println("\nNo files scanned yet.");
+            System.out.println(RED + "\n [!] No files scanned yet." + RESET);
             return;
         }
 
-        System.out.print("Enter number of top largest files to view: ");
+        System.out.print(CYAN + "Enter number of top largest files to view: " + RESET);
         int topN = getIntInput();
 
         MaxHeap tempHeap = maxHeap.cloneHeap();
-        System.out.println("\n--- Top " + topN + " Largest Files (Max Heap Prioritization) ---");
+        System.out.println(CYAN + BOLD + "\n--- Top " + topN + " Largest Files (Max Heap Prioritization) ---" + RESET);
         int count = 0;
 
         while (!tempHeap.isEmpty() && count < topN) {
@@ -234,7 +244,7 @@ public class ConsoleMenu {
 
     private void handleGraphView() {
         if (activeGraph == null) {
-            System.out.println("\nPlease run a directory scan first.");
+            System.out.println(RED + "\n [!] Please run a directory scan first." + RESET);
             return;
         }
         activeGraph.printGraphStructure();
@@ -242,19 +252,19 @@ public class ConsoleMenu {
 
     private void handleClutterHeatmap() {
         if (activeGraph == null) {
-            System.out.println("\nPlease run a directory scan first.");
+            System.out.println(RED + "\n [!] Please run a directory scan first." + RESET);
             return;
         }
         activeGraph.printClutterHeatmap(avlTree.getDuplicateGroups());
     }
 
     private void handleDelete() {
-        System.out.println("\n-------------------------------------------------");
-        System.out.println("Select File Deletion Method:");
-        System.out.println("1. Select File using File Picker");
-        System.out.println("2. Enter Full File Path Manually");
-        System.out.println("3. Cancel");
-        System.out.print("Select an option (1-3): ");
+        System.out.println(CYAN + "\n-------------------------------------------------" + RESET);
+        System.out.println(BOLD + "Select File Deletion Method:" + RESET);
+        System.out.println(BOLD + "  [1]" + RESET + " Select File using File Picker");
+        System.out.println(BOLD + "  [2]" + RESET + " Enter Full File Path Manually");
+        System.out.println(BOLD + "  [3]" + RESET + " Cancel");
+        System.out.print(BOLD + "  > Select an option (1-3): " + RESET);
 
         String choiceStr = scanner.nextLine().trim();
         int choice = parseChoice(choiceStr);
@@ -273,29 +283,29 @@ public class ConsoleMenu {
                 System.out.println("Deletion cancelled.");
                 return;
             default:
-                System.out.println("Invalid selection. Deletion cancelled.");
+                System.out.println(RED + " [!] Invalid selection. Deletion cancelled." + RESET);
                 return;
         }
 
         if (filePath == null || filePath.isEmpty()) {
-            System.out.println("No file selected.");
+            System.out.println(RED + "No file selected." + RESET);
             return;
         }
 
         File targetFile = new File(filePath);
         if (!targetFile.exists() || !targetFile.isFile()) {
-            System.out.println("Error: Specified path is invalid or is not a file.");
+            System.out.println(RED + BOLD + " [!] Error: Specified path is invalid or is not a file." + RESET);
             return;
         }
 
-        System.out.println("\nSelected File: " + targetFile.getAbsolutePath());
-        System.out.print("Are you sure you want to permanently delete this file? (yes/no): ");
+        System.out.println(CYAN + "\nSelected File: " + targetFile.getAbsolutePath() + RESET);
+        System.out.print(RED + BOLD + "Are you sure you want to permanently delete this file? (yes/no): " + RESET);
         String confirm = scanner.nextLine().trim();
 
         if (confirm.equalsIgnoreCase("yes")) {
             boolean deleted = StorageOptimizer.deleteFile(targetFile.getAbsolutePath());
             if (deleted) {
-                System.out.println("File deleted successfully!");
+                System.out.println(GREEN + BOLD + " [✓] File deleted successfully!" + RESET);
             }
         } else {
             System.out.println("Deletion cancelled.");
@@ -303,7 +313,7 @@ public class ConsoleMenu {
     }
 
     private String openSingleFilePicker() {
-        System.out.println("Opening Windows File Picker dialog...");
+        System.out.println(CYAN + "Opening Windows File Picker dialog..." + RESET);
 
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Select File to Delete - CleanDrive+");
